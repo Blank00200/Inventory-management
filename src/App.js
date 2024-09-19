@@ -1,23 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import InventoryForm from './components/InventoryForm';
+import InventoryList from './components/InventoryList';
+import * as XLSX from 'xlsx';
+import './App.css'; // Import the CSS file
 
 function App() {
+  const [items, setItems] = useState([]);
+
+  const addItem = (newItem) => {
+    setItems([...items, newItem]);
+  };
+
+  const removeItem = (index) => {
+    const updatedItems = items.filter((item, i) => i !== index);
+    setItems(updatedItems);
+  };
+
+  const downloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(items);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventory');
+    XLSX.writeFile(workbook, 'inventory.xlsx');
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1 className="app-title">Inventory Management</h1>
+      <InventoryForm addItem={addItem} />
+      <InventoryList items={items} removeItem={removeItem} />
+      <button className="download-btn" onClick={downloadExcel}>Download Excel</button>
     </div>
   );
 }
